@@ -198,7 +198,8 @@ public:
     for(int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
-      FCL_REAL d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+      Vec3f cross (vertices[tri[0]].cross(vertices[tri[1]]));
+      FCL_REAL d_six_vol = cross.dot(vertices[tri[2]]);
       vol += d_six_vol;
       com += (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
     }
@@ -221,13 +222,12 @@ public:
 
   Matrix3f computeMomentofInertia() const
   {
-    Matrix3f C(0, 0, 0,
-               0, 0, 0,
-               0, 0, 0);
+    Matrix3f C; C.setZero ();
 
-    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
-                         1/120.0, 1/60.0, 1/120.0,
-                         1/120.0, 1/120.0, 1/60.0);
+    Matrix3f C_canonical;
+    C_canonical << 1/60.0, 1/120.0, 1/120.0,
+      1/120.0, 1/60.0, 1/120.0,
+      1/120.0, 1/120.0, 1/60.0;
 
     for(int i = 0; i < num_tris; ++i)
     {
@@ -236,15 +236,17 @@ public:
       const Vec3f& v2 = vertices[tri[1]];
       const Vec3f& v3 = vertices[tri[2]];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-      Matrix3f A(v1, v2, v3);
-      C += transpose(A) * C_canonical * A * d_six_vol;
+      Matrix3f A; A.row (0) = v1; A.row (1) = v2; A.row (2) = v3;
+      C += A.transpose () * C_canonical * A * d_six_vol;
     }
 
     FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
 
-    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
-                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
-                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
+    Matrix3f res;
+    res << trace_C - C(0, 0), -C(0, 1), -C(0, 2),
+      -C(1, 0), trace_C - C(1, 1), -C(1, 2),
+      -C(2, 0), -C(2, 1), trace_C - C(2, 2);
+    return res;
   }
 
 public:

@@ -102,9 +102,9 @@ void Quaternion3f::toRotation(Matrix3f& R) const
   FCL_REAL twoYZ = twoZ*data[2];
   FCL_REAL twoZZ = twoZ*data[3];
 
-  R.setValue(1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
-             twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
-             twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY));
+  R << 1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
+    twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
+    twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY);
 }
 
 
@@ -168,9 +168,9 @@ void Quaternion3f::toAxes(Vec3f axis[3]) const
   FCL_REAL twoYZ = twoZ*data[2];
   FCL_REAL twoZZ = twoZ*data[3];
 
-  axis[0].setValue(1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY);
-  axis[1].setValue(twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX);
-  axis[2].setValue(twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY));
+  axis[0] << 1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY;
+  axis[1] << twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX;
+  axis[2] << twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY);
 }
 
 
@@ -186,14 +186,14 @@ void Quaternion3f::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
 
 void Quaternion3f::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
 {
-  double sqr_length = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
-  if(sqr_length > 0)
+  double sqr_norm = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
+  if(sqr_norm > 0)
   {
     angle = 2.0 * acos((double)data[0]);
-    double inv_length = 1.0 / sqrt(sqr_length);
-    axis[0] = inv_length * data[1];
-    axis[1] = inv_length * data[2];
-    axis[2] = inv_length * data[3];
+    double inv_norm = 1.0 / sqrt(sqr_norm);
+    axis[0] = inv_norm * data[1];
+    axis[1] = inv_norm * data[2];
+    axis[2] = inv_norm * data[3];
   }
   else
   {
@@ -295,14 +295,14 @@ Quaternion3f& Quaternion3f::conj()
 
 Quaternion3f& Quaternion3f::inverse()
 {
-  FCL_REAL sqr_length = data[0] * data[0] + data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
-  if(sqr_length > 0)
+  FCL_REAL sqr_norm = data[0] * data[0] + data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
+  if(sqr_norm > 0)
   {
-    FCL_REAL inv_length = 1 / std::sqrt(sqr_length);
-    data[0] *= inv_length;
-    data[1] *= (-inv_length);
-    data[2] *= (-inv_length);
-    data[3] *= (-inv_length);
+    FCL_REAL inv_norm = 1 / std::sqrt(sqr_norm);
+    data[0] *= inv_norm;
+    data[1] *= (-inv_norm);
+    data[2] *= (-inv_norm);
+    data[3] *= (-inv_norm);
   }
   else
   {
@@ -335,8 +335,7 @@ Quaternion3f inverse(const Quaternion3f& q)
 void Quaternion3f::fromEuler(FCL_REAL a, FCL_REAL b, FCL_REAL c)
 {
   Matrix3f R;
-  R.setEulerYPR(a, b, c);
-
+  setEulerYPR(a, b, c, R);
   fromRotation(R);
 }
 
@@ -361,7 +360,6 @@ void Quaternion3f::toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const
       c += boost::math::constants::pi<double>();
   }
 }
-
 
 Vec3f Quaternion3f::getColumn(std::size_t i) const
 {

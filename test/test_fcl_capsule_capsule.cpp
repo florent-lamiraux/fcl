@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
   Transform3f transform2;
   transform2 = Transform3f(Vec3f(0,0,25.1));
   Matrix3f rot2;
-  rot2.setEulerZYX(0,M_PI_2,0);
+  setEulerZYX(0,M_PI_2,0, rot2);
   transform2.setRotation(rot2);
 
   bool res;

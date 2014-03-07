@@ -328,7 +328,7 @@ Interval TaylorModel::getTightBound() const
 void TaylorModel::setZero()
 {
   coeffs_[0] = coeffs_[1] = coeffs_[2] = coeffs_[3] = 0;
-  r_.setValue(0);
+  r_.setZero ();
 }
 
 TaylorModel operator * (FCL_REAL d, const TaylorModel& a)
@@ -370,7 +370,7 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
 
   // compute bounds for w^3 cos(wt+q0)/16, t \in [t0, t1]
   Interval fddddBounds;
-  if(w == 0) fddddBounds.setValue(0);
+  if(w == 0) fddddBounds.setZero ();
   else
   {
     FCL_REAL cosQL = cos(tm.getTimeInterval()->t_[0] * w + q0);
@@ -441,7 +441,7 @@ void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
 
   Interval fddddBounds;
 
-  if(w == 0) fddddBounds.setValue(0);
+  if(w == 0) fddddBounds.setZero ();
   else
   {
     FCL_REAL sinQL = sin(w * tm.getTimeInterval()->t_[0] + q0);

@@ -37,154 +37,100 @@
 #ifndef FCL_MATRIX_3F_H
 #define FCL_MATRIX_3F_H
 
-#include "fcl/math/vec_3f.h"
+#include <Eigen/Eigenvalues>
+#include <fcl/math/vec_3f.h>
 
 namespace fcl
 {
 
-/// @brief Matrix2 class wrapper. the core data is in the template parameter class
-template<typename T>
-class Matrix3fX
-{
-public:
-  typedef typename T::meta_type U;
-  typedef typename T::vector_type S;
-  T data;
-  
-  Matrix3fX() {}
-  Matrix3fX(U xx, U xy, U xz,
-            U yx, U yy, U yz,
-            U zx, U zy, U zz) : data(xx, xy, xz, yx, yy, yz, zx, zy, zz)
-  {}
+  typedef Eigen::Matrix <FCL_REAL, 3, 3>  Matrix3f;
 
-  Matrix3fX(const Vec3fX<S>& v1, const Vec3fX<S>& v2, const Vec3fX<S>& v3)
-    : data(v1.data, v2.data, v3.data) {}
-  
-  Matrix3fX(const Matrix3fX<T>& other) : data(other.data) {}
-
-  Matrix3fX(const T& data_) : data(data_) {}
-  
-  inline Vec3fX<S> getColumn(size_t i) const
+  inline void hat (Matrix3f& mat, const Vec3f& vec)
   {
-    return Vec3fX<S>(data.getColumn(i));
+    mat << 0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0;
   }
 
-  inline Vec3fX<S> getRow(size_t i) const
+  inline void relativeTransform(const Matrix3f& R1, const Vec3f& t1,
+				const Matrix3f& R2, const Vec3f& t2,
+				Matrix3f& R, Vec3f& t)
   {
-    return Vec3fX<S>(data.getRow(i));
+    R = R1.transpose () * R2;
+    t = R1.transpose () * (t2 - t1);
   }
 
-  inline U operator () (size_t i, size_t j) const
+  inline void eigen (Matrix3f& m, FCL_REAL sigma [3], Vec3f axis [3])
   {
-    return data(i, j);
+    Eigen::SelfAdjointEigenSolver <Matrix3f> es (m);
+    sigma [0] = es.eigenvalues () [0];
+    sigma [1] = es.eigenvalues () [1];
+    sigma [2] = es.eigenvalues () [2];
+    axis  [0] = es.eigenvectors ().col (0);
+    axis  [1] = es.eigenvectors ().col (1);
+    axis  [2] = es.eigenvectors ().col (2);
   }
 
-  inline U& operator () (size_t i, size_t j)
+  /// @brief Class for variance matrix in 3d
+  class Variance3f
   {
-    return data(i, j);
-  }
+  public:
+    /// @brief Variation matrix
+    Matrix3f Sigma;
 
-  inline Vec3fX<S> operator * (const Vec3fX<S>& v) const
-  {
-    return Vec3fX<S>(data * v.data);
-  }
+    /// @brief Variations along the eign axes
+    FCL_REAL sigma[3];
 
-  inline Matrix3fX<T> operator * (const Matrix3fX<T>& m) const
-  {
-    return Matrix3fX<T>(data * m.data);
-  }
+    /// @brief Eigen axes of the variation matrix
+    Vec3f axis[3];
 
-  inline Matrix3fX<T> operator + (const Matrix3fX<T>& other) const
-  {
-    return Matrix3fX<T>(data + other.data);
-  }
+    Variance3f() {}
 
-  inline Matrix3fX<T> operator - (const Matrix3fX<T>& other) const
-  {
-    return Matrix3fX<T>(data - other.data);
-  }
+  Variance3f(const Matrix3f& S) : Sigma(S)
+    {
+      init();
+    }
 
-  inline Matrix3fX<T> operator + (U c) const
-  {
-    return Matrix3fX<T>(data + c);
-  }
+    /// @brief init the Variance
+    void init()
+    {
+      eigen (Sigma, sigma, axis);
+    }
 
-  inline Matrix3fX<T> operator - (U c) const
-  {
-    return Matrix3fX<T>(data - c);
-  }
+    /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix
+    Variance3f& sqrt()
+      {
+	for(std::size_t i = 0; i < 3; ++i)
+	  {
+	    if(sigma[i] < 0) sigma[i] = 0;
+	    sigma[i] = std::sqrt(sigma[i]);
+	  }
 
-  inline Matrix3fX<T> operator * (U c) const
-  {
-    return Matrix3fX<T>(data * c);
-  }
 
-  inline Matrix3fX<T> operator / (U c) const
-  {
-    return Matrix3fX<T>(data / c);
-  }
+	Sigma.setZero();
+	for(std::size_t i = 0; i < 3; ++i)
+	  {
+	    for(std::size_t j = 0; j < 3; ++j)
+	      {
+		Sigma(i, j) += sigma[0] * axis[0][i] * axis[0][j];
+		Sigma(i, j) += sigma[1] * axis[1][i] * axis[1][j];
+		Sigma(i, j) += sigma[2] * axis[2][i] * axis[2][j];
+	      }
+	  }
 
-  inline Matrix3fX<T>& operator *= (const Matrix3fX<T>& other)
-  {
-    data *= other.data;
-    return *this;
-  }
-
-  inline Matrix3fX<T>& operator += (const Matrix3fX<T>& other)
-  {
-    data += other.data;
-    return *this;
-  }
-
-  inline Matrix3fX<T>& operator -= (const Matrix3fX<T>& other)
-  {
-    data -= other.data;
-    return *this;
-  }
-
-  inline Matrix3fX<T>& operator += (U c) 
-  {
-    data += c;
-    return *this;
-  }
-
-  inline Matrix3fX<T>& operator -= (U c)
-  {
-    data -= c;
-    return *this;
-  }
-
-  inline Matrix3fX<T>& operator *= (U c)
-  {
-    data *= c;
-    return *this;
-  }
-
-  inline Matrix3fX<T>& operator /= (U c)
-  {
-    data /= c;
-    return *this;
-  }
-
-  inline void setIdentity()
-  {
-    data.setIdentity();
-  }
-
-  inline void setZero()
-  {
-    data.setZero();
-  }
+	return *this;
+      }
+  };
 
   /// @brief Set the matrix from euler angles YPR around ZYX axes
   /// @param eulerX Roll about X axis
   /// @param eulerY Pitch around Y axis
   /// @param eulerZ Yaw aboud Z axis
-  ///  
+  /// @retval res resulting rotation matrix
+  ///
   /// These angles are used to produce a rotation matrix. The euler
-  /// angles are applied in ZYX order. I.e a vector is first rotated 
+  /// angles are applied in ZYX order. I.e a vector is first rotated
   /// about X then Y and then Z
-  inline void setEulerZYX(FCL_REAL eulerX, FCL_REAL eulerY, FCL_REAL eulerZ)
+  inline void setEulerZYX(FCL_REAL eulerX, FCL_REAL eulerY, FCL_REAL eulerZ,
+			  Matrix3f& res)
   {
     FCL_REAL ci(cos(eulerX));
     FCL_REAL cj(cos(eulerY));
@@ -197,327 +143,21 @@ public:
     FCL_REAL sc = si * ch;
     FCL_REAL ss = si * sh;
 
-    setValue(cj * ch, sj * sc - cs, sj * cc + ss,
-             cj * sh, sj * ss + cc, sj * cs - sc, 
-             -sj,     cj * si,      cj * ci);
+    res << cj * ch, sj * sc - cs, sj * cc + ss,
+      cj * sh, sj * ss + cc, sj * cs - sc,
+      -sj,     cj * si,      cj * ci;
 
   }
 
   /// @brief Set the matrix from euler angles using YPR around YXZ respectively
   /// @param yaw Yaw about Y axis
   /// @param pitch Pitch about X axis
-  /// @param roll Roll about Z axis 
-  void setEulerYPR(FCL_REAL yaw, FCL_REAL pitch, FCL_REAL roll)
+  /// @param roll Roll about Z axis
+  /// @retval res resulting rotation matrix
+  inline void setEulerYPR(FCL_REAL yaw, FCL_REAL pitch, FCL_REAL roll,
+			  Matrix3f& res)
   {
-    setEulerZYX(roll, pitch, yaw);
+    setEulerZYX(roll, pitch, yaw, res);
   }
-
-  inline U determinant() const
-  {
-    return data.determinant();
-  }
-
-  Matrix3fX<T>& transpose() 
-  {
-    data.transpose();
-    return *this;
-  }
-
-  Matrix3fX<T>& inverse()
-  {
-    data.inverse();
-    return *this;
-  }
-
-  Matrix3fX<T>& abs()
-  {
-    data.abs();
-    return *this;
-  }
-
-  static const Matrix3fX<T>& getIdentity()
-  {
-    static const Matrix3fX<T> I((U)1, (U)0, (U)0,
-                                (U)0, (U)1, (U)0,
-                                (U)0, (U)0, (U)1);
-    return I;
-  }
-
-  Matrix3fX<T> transposeTimes(const Matrix3fX<T>& other) const
-  {
-    return Matrix3fX<T>(data.transposeTimes(other.data));
-  }
-
-  Matrix3fX<T> timesTranspose(const Matrix3fX<T>& other) const
-  {
-    return Matrix3fX<T>(data.timesTranspose(other.data));
-  }
-
-  Vec3fX<S> transposeTimes(const Vec3fX<S>& v) const
-  {
-    return Vec3fX<S>(data.transposeTimes(v.data));
-  }
-
-  Matrix3fX<T> tensorTransform(const Matrix3fX<T>& m) const
-  {
-    Matrix3fX<T> res(*this);
-    res *= m;
-    return res.timesTranspose(*this);
-  }
-
-  inline U transposeDotX(const Vec3fX<S>& v) const
-  {
-    return data.transposeDot(0, v.data);
-  }
-
-  inline U transposeDotY(const Vec3fX<S>& v) const
-  {
-    return data.transposeDot(1, v.data);
-  }
-
-  inline U transposeDotZ(const Vec3fX<S>& v) const
-  {
-    return data.transposeDot(2, v.data);
-  }
-
-  inline U transposeDot(size_t i, const Vec3fX<S>& v) const
-  {
-    return data.transposeDot(i, v.data);
-  }
-
-  inline U dotX(const Vec3fX<S>& v) const
-  {
-    return data.dot(0, v.data);
-  }
-
-  inline U dotY(const Vec3fX<S>& v) const
-  {
-    return data.dot(1, v.data);
-  }
-
-  inline U dotZ(const Vec3fX<S>& v) const
-  {
-    return data.dot(2, v.data);
-  }
-
-  inline U dot(size_t i, const Vec3fX<S>& v) const
-  {
-    return data.dot(i, v.data);
-  }
-
-  inline void setValue(U xx, U xy, U xz,
-                       U yx, U yy, U yz,
-                       U zx, U zy, U zz)
-  {
-    data.setValue(xx, xy, xz, 
-                  yx, yy, yz,
-                  zx, zy, zz);
-  }
-
-  inline void setValue(U x)
-  {
-    data.setValue(x);
-  }
-};
-
-template<typename T>
-void hat(Matrix3fX<T>& mat, const Vec3fX<typename T::vector_type>& vec)
-{
-  mat.setValue(0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0);
 }
-
-template<typename T>
-void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<typename T::vector_type>& t1,
-                       const Matrix3fX<T>& R2, const Vec3fX<typename T::vector_type>& t2,
-                       Matrix3fX<T>& R, Vec3fX<typename T::vector_type>& t)
-{
-  R = R1.transposeTimes(R2);
-  t = R1.transposeTimes(t2 - t1);
-}
-
-/// @brief compute the eigen vector and eigen vector of a matrix. dout is the eigen values, vout is the eigen vectors
-template<typename T>
-void eigen(const Matrix3fX<T>& m, typename T::meta_type dout[3], Vec3fX<typename T::vector_type> vout[3])
-{
-  Matrix3fX<T> R(m);
-  int n = 3;
-  int j, iq, ip, i;
-  typename T::meta_type tresh, theta, tau, t, sm, s, h, g, c;
-  int nrot;
-  typename T::meta_type b[3];
-  typename T::meta_type z[3];
-  typename T::meta_type v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-  typename T::meta_type d[3];
-
-  for(ip = 0; ip < n; ++ip)
-  {
-    b[ip] = d[ip] = R(ip, ip);
-    z[ip] = 0;
-  }
-
-  nrot = 0;
-
-  for(i = 0; i < 50; ++i)
-  {
-    sm = 0;
-    for(ip = 0; ip < n; ++ip)
-      for(iq = ip + 1; iq < n; ++iq)
-        sm += std::abs(R(ip, iq));
-    if(sm == 0.0)
-    {
-      vout[0].setValue(v[0][0], v[0][1], v[0][2]);
-      vout[1].setValue(v[1][0], v[1][1], v[1][2]);
-      vout[2].setValue(v[2][0], v[2][1], v[2][2]);
-      dout[0] = d[0]; dout[1] = d[1]; dout[2] = d[2];
-      return;
-    }
-
-    if(i < 3) tresh = 0.2 * sm / (n * n);
-    else tresh = 0.0;
-
-    for(ip = 0; ip < n; ++ip)
-    {
-      for(iq= ip + 1; iq < n; ++iq)
-      {
-        g = 100.0 * std::abs(R(ip, iq));
-        if(i > 3 &&
-           std::abs(d[ip]) + g == std::abs(d[ip]) &&
-           std::abs(d[iq]) + g == std::abs(d[iq]))
-          R(ip, iq) = 0.0;
-        else if(std::abs(R(ip, iq)) > tresh)
-        {
-          h = d[iq] - d[ip];
-          if(std::abs(h) + g == std::abs(h)) t = (R(ip, iq)) / h;
-          else
-          {
-            theta = 0.5 * h / (R(ip, iq));
-            t = 1.0 /(std::abs(theta) + std::sqrt(1.0 + theta * theta));
-            if(theta < 0.0) t = -t;
-          }
-          c = 1.0 / std::sqrt(1 + t * t);
-          s = t * c;
-          tau = s / (1.0 + c);
-          h = t * R(ip, iq);
-          z[ip] -= h;
-          z[iq] += h;
-          d[ip] -= h;
-          d[iq] += h;
-          R(ip, iq) = 0.0;
-          for(j = 0; j < ip; ++j) { g = R(j, ip); h = R(j, iq); R(j, ip) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
-          for(j = ip + 1; j < iq; ++j) { g = R(ip, j); h = R(j, iq); R(ip, j) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
-          for(j = iq + 1; j < n; ++j) { g = R(ip, j); h = R(iq, j); R(ip, j) = g - s * (h + g * tau); R(iq, j) = h + s * (g - h * tau); }
-          for(j = 0; j < n; ++j) { g = v[j][ip]; h = v[j][iq]; v[j][ip] = g - s * (h + g * tau); v[j][iq] = h + s * (g - h * tau); }
-          nrot++;
-        }
-      }
-    }
-    for(ip = 0; ip < n; ++ip)
-    {
-      b[ip] += z[ip];
-      d[ip] = b[ip];
-      z[ip] = 0.0;
-    }
-  }
-
-  std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
-
-  return;
-}
-
-template<typename T>
-Matrix3fX<T> abs(const Matrix3fX<T>& R) 
-{
-  return Matrix3fX<T>(abs(R.data));
-}
-
-template<typename T>
-Matrix3fX<T> transpose(const Matrix3fX<T>& R)
-{
-  return Matrix3fX<T>(transpose(R.data));
-}
-
-template<typename T>
-Matrix3fX<T> inverse(const Matrix3fX<T>& R)
-{
-  return Matrix3fX<T>(inverse(R.data));
-}
-
-template<typename T>
-typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename T::vector_type>& v)
-{
-  return v.dot(R * v);
-}
-
-
-#if FCL_HAVE_SSE
-typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
-#else
-typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
-#endif
-
-static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
-{
-  o << "[(" << m(0, 0) << " " << m(0, 1) << " " << m(0, 2) << ")("
-    << m(1, 0) << " " << m(1, 1) << " " << m(1, 2) << ")(" 
-    << m(2, 0) << " " << m(2, 1) << " " << m(2, 2) << ")]";
-  return o;
-}
-
-
-
-/// @brief Class for variance matrix in 3d
-class Variance3f
-{
-public:
-  /// @brief Variation matrix
-  Matrix3f Sigma;
-
-  /// @brief Variations along the eign axes
-  Matrix3f::U sigma[3];
-
-  /// @brief Eigen axes of the variation matrix
-  Vec3f axis[3];
-
-  Variance3f() {}
-
-  Variance3f(const Matrix3f& S) : Sigma(S)
-  {
-    init();
-  }
-
-  /// @brief init the Variance
-  void init() 
-  {
-    eigen(Sigma, sigma, axis);
-  }
-
-  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix
-  Variance3f& sqrt()
-  {
-    for(std::size_t i = 0; i < 3; ++i)
-    {
-      if(sigma[i] < 0) sigma[i] = 0;
-      sigma[i] = std::sqrt(sigma[i]);
-    }
-
-
-    Sigma.setZero();
-    for(std::size_t i = 0; i < 3; ++i)
-    {
-      for(std::size_t j = 0; j < 3; ++j)
-      {
-        Sigma(i, j) += sigma[0] * axis[0][i] * axis[0][j];
-        Sigma(i, j) += sigma[1] * axis[1][i] * axis[1][j];
-        Sigma(i, j) += sigma[2] * axis[2][i] * axis[2][j];
-      }
-    }
-
-    return *this;
-  }
-};
-
-}
-
-
-
 #endif

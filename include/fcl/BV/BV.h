@@ -74,7 +74,7 @@ public:
   static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2)
   {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = (bv1.max_ - bv1.min_).length() * 0.5;
+    FCL_REAL r = (bv1.max_ - bv1.min_).norm() * 0.5;
     Vec3f center2 = tf1.transform(center);
     Vec3f delta(r, r, r);
     bv2.min_ = center2 - delta;
@@ -127,9 +127,9 @@ public:
     bv2.To = tf1.transform(bv1.center());
     bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
     const Matrix3f& R = tf1.getRotation();
-    bv2.axis[0] = R.getColumn(0);
-    bv2.axis[1] = R.getColumn(1);
-    bv2.axis[2] = R.getColumn(2);    
+    bv2.axis[0] = R.col (0);
+    bv2.axis[1] = R.col (1);
+    bv2.axis[2] = R.col (2);    
   }
 };
 
@@ -179,7 +179,7 @@ public:
   static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2)
   {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).length() * 0.5;
+    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
     Vec3f delta(r, r, r);
     Vec3f center2 = tf1.transform(center);
     bv2.min_ = center2 - delta;
@@ -282,9 +282,9 @@ public:
 
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
-    bv2.axis[1] = R.getColumn(id[1]);
-    bv2.axis[2] = R.getColumn(id[2]);    
+    bv2.axis[0] = left_hand ? -R.col (id[0]) : R.col (id[0]);
+    bv2.axis[1] = R.col (id[1]);
+    bv2.axis[2] = R.col (id[2]);    
   }
 };
 

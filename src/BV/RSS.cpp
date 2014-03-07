@@ -134,7 +134,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vec3f Tba = Rab.transposeTimes(Tab);
+  Vec3f Tba = Rab.transpose ()*(Tab);
 
   Vec3f S;
   FCL_REAL t, u;
@@ -207,11 +207,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        (*P) << a[0], t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -236,11 +236,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        (*P) << a[0], t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -264,11 +264,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(0, t, 0);
+        (*P) << 0, t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -292,11 +292,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(0, t, 0);
+        (*P) << 0, t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -360,11 +360,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        (*P) << a[0], t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -388,11 +388,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(a[0], t, 0);
+        (*P) << a[0], t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -417,12 +417,12 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(0, t, 0);
+        (*P) << 0, t, 0;
         *Q = S + (*P);
       }
 
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -446,11 +446,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P&& Q)
       {
-        P->setValue(0, t, 0);
+        (*P) << 0, t, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -514,11 +514,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        (*P) << t, a[1], 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -542,11 +542,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        (*P) << t, a[1], 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -570,11 +570,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        (*P) << t, 0, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -598,11 +598,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        (*P) << t, 0, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -659,11 +659,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        (*P) << t, a[1], 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -687,11 +687,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, a[1], 0);
+        (*P) << t, a[1], 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -716,11 +716,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        (*P) << t, 0, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -744,11 +744,11 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
       if(P && Q)
       {
-        P->setValue(t, 0, 0);
+        (*P) << t, 0, 0;
         *Q = S + (*P);
       }
 
-      return S.length();
+      return S.norm();
     }
   }
 
@@ -785,14 +785,14 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
   if(sep1 >= sep2 && sep1 >= 0)
   {
     if(Tab[2] > 0)
-      S.setValue(0, 0, sep1);
+      S << 0, 0, sep1;
     else
-      S.setValue(0, 0, -sep1);
+      S << 0, 0, -sep1;
 
     if(P && Q)
     {
       *Q = S;
-      P->setValue(0);
+      P->setZero ();
     }
   }
 
@@ -841,9 +841,10 @@ bool RSS::overlap(const RSS& other) const
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2]));
 
   /// Now compute R1'R2
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
-             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R;
+  R << axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+    axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+    axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]);
 
   FCL_REAL dist = rectDistance(R, T, l, other.l);
   return (dist <= (r + other.r));
@@ -851,16 +852,19 @@ bool RSS::overlap(const RSS& other) const
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+  Matrix3f R0b2;
+  R0b2 << R0.row (0).dot(b2.axis[0]), R0.row (0).dot(b2.axis[1]), R0.row (0).dot(b2.axis[2]),
+    R0.row (1).dot(b2.axis[0]), R0.row (1).dot(b2.axis[1]), R0.row (1).dot(b2.axis[2]),
+    R0.row (2).dot(b2.axis[0]), R0.row (2).dot(b2.axis[1]), R0.row (2).dot(b2.axis[2]);
 
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+  Matrix3f R;
+  R << R0b2.col (0).dot(b1.axis[0]), R0b2.col (1).dot(b1.axis[0]), R0b2.col(2).dot(b1.axis[0]),
+    R0b2.col (0).dot(b1.axis[1]), R0b2.col (1).dot(b1.axis[1]), R0b2.col (2).dot(b1.axis[1]),
+    R0b2.col (0).dot(b1.axis[2]), R0b2.col (1).dot(b1.axis[2]), R0b2.col (2).dot(b1.axis[2]);
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+  Vec3f T;
+  T << Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]);
 
   FCL_REAL dist = rectDistance(R, T, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
@@ -884,20 +888,20 @@ bool RSS::contain(const Vec3f& p) const
   {
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(proj0, y, 0);
-    return ((proj - v).sqrLength() < r * r);
+    return ((proj - v).squaredNorm() < r * r);
   }
   else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
   {
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     Vec3f v(x, proj1, 0);
-    return ((proj - v).sqrLength() < r * r);
+    return ((proj - v).squaredNorm() < r * r);
   }
   else
   {
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(x, y, 0);
-    return ((proj - v).sqrLength() < r * r);
+    return ((proj - v).squaredNorm() < r * r);
   }
 }
 
@@ -929,7 +933,7 @@ RSS& RSS::operator += (const Vec3f& p)
   {
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(proj0, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
@@ -959,7 +963,7 @@ RSS& RSS::operator += (const Vec3f& p)
   {
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     Vec3f v(x, proj1, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
@@ -990,7 +994,7 @@ RSS& RSS::operator += (const Vec3f& p)
     FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(x, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
@@ -1076,7 +1080,7 @@ RSS RSS::operator + (const RSS& other) const
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  Matrix3f::U s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
@@ -1089,11 +1093,11 @@ RSS RSS::operator + (const RSS& other) const
   else { mid = 2; }
 
   // column first matrix, as the axis in RSS
-  bv.axis[0].setValue(E[0][max], E[1][max], E[2][max]);
-  bv.axis[1].setValue(E[0][mid], E[1][mid], E[2][mid]);
-  bv.axis[2].setValue(E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
-                      E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
-                      E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
+  bv.axis[0] << E[0][max], E[1][max], E[2][max];
+  bv.axis[1] << E[0][mid], E[1][mid], E[2][mid];
+  bv.axis[2] << E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
+    E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
+    E[0][max]*E[1][mid] - E[0][mid]*E[1][max];
 
   // set rss origin, rectangle size and radius
   getRadiusAndOriginAndRectangleSize(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
@@ -1108,9 +1112,12 @@ FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
   // First compute the rotation part, then translation part
   Vec3f t = other.Tr - Tr; // T2 - T1
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
-             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R;
+  R << axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]),
+    axis[0].dot(other.axis[2]), axis[1].dot(other.axis[0]),
+    axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+    axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]),
+    axis[2].dot(other.axis[2]);
 
   FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
@@ -1119,17 +1126,24 @@ FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
 
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
 {
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+  Matrix3f R0b2;
+  R0b2 << R0.row (0).dot(b2.axis[0]), R0.row (0).dot(b2.axis[1]),
+    R0.row (0).dot(b2.axis[2]), R0.row (1).dot(b2.axis[0]),
+    R0.row (1).dot(b2.axis[1]), R0.row (1).dot(b2.axis[2]),
+    R0.row (2).dot(b2.axis[0]), R0.row (2).dot(b2.axis[1]),
+    R0.row (2).dot(b2.axis[2]);
 
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+  Matrix3f R;
+  R << R0b2.col (0).dot(b1.axis[0]), R0b2.col (1).dot(b1.axis[0]),
+    R0b2.col (2).dot(b1.axis[0]), R0b2.col (0).dot(b1.axis[1]),
+    R0b2.col (1).dot(b1.axis[1]), R0b2.col (2).dot(b1.axis[1]),
+    R0b2.col (0).dot(b1.axis[2]), R0b2.col (1).dot(b1.axis[2]),
+    R0b2.col (2).dot(b1.axis[2]);
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
 
-  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+  Vec3f T;
+  T << Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]);
 
   FCL_REAL dist = rectDistance(R, T, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);

@@ -74,7 +74,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
   computeVertices(b2, vertex + 8);
   Matrix3f M;
   Vec3f E[3];
-  Matrix3f::U s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   // obb axes
   Vec3f& R0 = b.axis[0];
@@ -99,8 +99,8 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
   else { mid = 2; }
 
 
-  R1.setValue(E[0][max], E[1][max], E[2][max]);
-  R2.setValue(E[0][mid], E[1][mid], E[2][mid]);
+  R1 << E[0][max], E[1][max], E[2][max];
+  R2 << E[0][mid], E[1][mid], E[2][mid];
 
   // set obb centers and extensions
   Vec3f center, extent;
@@ -125,8 +125,8 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2)
     q1 = -q1;
 
   Quaternion3f q = q0 + q1;
-  FCL_REAL inv_length = 1.0 / std::sqrt(q.dot(q));
-  q = q * inv_length;
+  FCL_REAL inv_norm = 1.0 / std::sqrt(q.dot(q));
+  q = q * inv_norm;
   q.toAxes(b.axis);
 
 
@@ -177,48 +177,49 @@ bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f&
   register FCL_REAL t, s;
   const FCL_REAL reps = 1e-6;
 
-  Matrix3f Bf = abs(B);
-  Bf += reps;
+  Matrix3f Bf = Eigen::abs(B.array ());
+  Matrix3f epsilon; epsilon.setConstant (reps);
+  Bf += epsilon;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
 
   // A1 x A2 = A0
   t = ((T[0] < 0.0) ? -T[0] : T[0]);
 
-  if(t > (a[0] + Bf.dotX(b)))
+  if(t > (a[0] + Bf.row (0).dot(b)))
     return true;
 
   // B1 x B2 = B0
-  s =  B.transposeDotX(T);
+  s =  B.col (0).dot(T);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (b[0] + Bf.transposeDotX(a)))
+  if(t > (b[0] + Bf.col (0).dot(a)))
     return true;
 
   // A2 x A0 = A1
   t = ((T[1] < 0.0) ? -T[1] : T[1]);
 
-  if(t > (a[1] + Bf.dotY(b)))
+  if(t > (a[1] + Bf.row (1).dot(b)))
     return true;
 
   // A0 x A1 = A2
   t =((T[2] < 0.0) ? -T[2] : T[2]);
 
-  if(t > (a[2] + Bf.dotZ(b)))
+  if(t > (a[2] + Bf.row (2).dot(b)))
     return true;
 
   // B2 x B0 = B1
-  s = B.transposeDotY(T);
+  s = B.col (1).dot(T);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (b[1] + Bf.transposeDotY(a)))
+  if(t > (b[1] + Bf.col (1).dot(a)))
     return true;
 
   // B0 x B1 = B2
-  s = B.transposeDotZ(T);
+  s = B.col (2).dot(T);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (b[2] + Bf.transposeDotZ(a)))
+  if(t > (b[2] + Bf.col (2).dot(a)))
     return true;
 
   // A0 x B0
@@ -306,9 +307,12 @@ bool OBB::overlap(const OBB& other) const
   /// First compute the rotation part, then translation part
   Vec3f t = other.To - To; // T2 - T1
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
-             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R;
+  R << axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]),
+    axis[0].dot(other.axis[2]), axis[1].dot(other.axis[0]),
+    axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+    axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]),
+    axis[2].dot(other.axis[2]);
 
   return !obbDisjoint(R, T, extent, other.extent);
 }
@@ -339,7 +343,7 @@ OBB& OBB::operator += (const Vec3f& p)
   bvp.axis[0] = axis[0];
   bvp.axis[1] = axis[1];
   bvp.axis[2] = axis[2];
-  bvp.extent.setValue(0);
+  bvp.extent.setZero ();
 
   *this += bvp;
   return *this;
@@ -350,7 +354,7 @@ OBB OBB::operator + (const OBB& other) const
   Vec3f center_diff = To - other.To;
   FCL_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
   FCL_REAL max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
-  if(center_diff.length() > 2 * (max_extent + max_extent2))
+  if(center_diff.norm() > 2 * (max_extent + max_extent2))
   {
     return merge_largedist(*this, other);
   }
@@ -370,16 +374,23 @@ FCL_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
 {
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+  Matrix3f R0b2;
+  R0b2 << R0.row (0).dot(b2.axis[0]), R0.row (0).dot(b2.axis[1]),
+    R0.row (0).dot(b2.axis[2]), R0.row (1).dot(b2.axis[0]),
+    R0.row (1).dot(b2.axis[1]), R0.row (1).dot(b2.axis[2]),
+    R0.row (2).dot(b2.axis[0]), R0.row (2).dot(b2.axis[1]),
+    R0.row (2).dot(b2.axis[2]);
 
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+  Matrix3f R;
+  R << R0b2.col (0).dot(b1.axis[0]), R0b2.col (1).dot(b1.axis[0]),
+    R0b2.col (2).dot(b1.axis[0]), R0b2.col (0).dot(b1.axis[1]),
+    R0b2.col (1).dot(b1.axis[1]), R0b2.col (2).dot(b1.axis[1]),
+    R0b2.col (0).dot(b1.axis[2]), R0b2.col (1).dot(b1.axis[2]),
+    R0b2.col (2).dot(b1.axis[2]);
 
   Vec3f Ttemp = R0 * b2.To + T0 - b1.To;
-  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+Vec3f T;
+T << Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]);
 
   return !obbDisjoint(R, T, b1.extent, b2.extent);
 }

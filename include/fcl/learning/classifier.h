@@ -1,6 +1,7 @@
 #ifndef FCL_LEARNING_CLASSIFIER_H
 #define FCL_LEARNING_CLASSIFIER_H
 
+#include <vector>
 #include "fcl/math/vec_nf.h"
 
 namespace fcl

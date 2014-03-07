@@ -1,6 +1,7 @@
 #ifndef FCL_MATH_SAMPLING_H
 #define FCL_MATH_SAMPLING_H
 
+#include <vector>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/normal_distribution.hpp>

@@ -180,7 +180,7 @@ std::size_t BallEulerJoint::getNumDofs() const
 Transform3f BallEulerJoint::getLocalTransform() const
 {
   Matrix3f rot;
-  rot.setEulerYPR((*joint_cfg_)[0], (*joint_cfg_)[1], (*joint_cfg_)[2]);
+  setEulerYPR((*joint_cfg_)[0], (*joint_cfg_)[1], (*joint_cfg_)[2], rot);
   return transform_to_parent_ * Transform3f(rot);
 }
 

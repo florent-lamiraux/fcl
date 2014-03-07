@@ -38,6 +38,8 @@
 #ifndef FCL_CCD_MOTION_H
 #define FCL_CCD_MOTION_H
 
+#include <fcl/math/matrix_3f.h>
+#include <fcl/ccd/taylor_matrix.h>
 #include "fcl/ccd/motion_base.h"
 #include "fcl/intersect.h"
 #include <iostream>
@@ -165,11 +167,11 @@ public:
     }
 
     // set tm
-    Matrix3f I(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    Matrix3f I; I.setIdentity ();
     // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
     /// 1. compute M(1/2)
     Vec3f Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
-    FCL_REAL Rt0_len = Rt0.length();
+    FCL_REAL Rt0_len = Rt0.norm();
     FCL_REAL inv_Rt0_len = 1.0 / Rt0_len;
     FCL_REAL inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
     FCL_REAL inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
@@ -178,9 +180,9 @@ public:
     FCL_REAL sintheta0 = sin(theta0);
     
     Vec3f Wt0 = Rt0 * inv_Rt0_len;
-    Matrix3f hatWt0;
+    fcl::Matrix3f hatWt0;
     hat(hatWt0, Wt0);
-    Matrix3f hatWt0_sqr = hatWt0 * hatWt0;
+    fcl::Matrix3f hatWt0_sqr = hatWt0 * hatWt0;
     Matrix3f Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
 
     /// 2. compute M'(1/2)
@@ -195,7 +197,7 @@ public:
     /// 3.1. compute M''(1/2)
     Vec3f ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
     FCL_REAL Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
-    FCL_REAL dRt0_dot_dRt0 = dRt0.sqrLength();
+    FCL_REAL dRt0_dot_dRt0 = dRt0.squaredNorm();
     FCL_REAL ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
     Vec3f ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
     Matrix3f hatddWt0;
@@ -267,7 +269,7 @@ public:
   ScrewMotion() : MotionBase()
   {
     // Default angular velocity is zero
-    axis.setValue(1, 0, 0);
+    axis = Vec3f (1, 0, 0);
     angular_vel = 0;
 
     // Default reference point is local zero point
@@ -339,7 +341,10 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_axis * sin_model - hat_axis * hat_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    Matrix3f hat_axis_sq (hat_axis * hat_axis);
+    TMatrix3 delta_R = hat_axis * sin_model -
+      hat_axis_sq * (cos_model - 1) +
+      Matrix3f::Identity ();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel * axis[0]);
@@ -366,7 +371,7 @@ protected:
     {
       angular_vel = 0;
       axis = tf2.getTranslation() - tf1.getTranslation();
-      linear_vel = axis.length();
+      linear_vel = axis.norm();
       p = tf1.getTranslation();
     }
     else
@@ -493,7 +498,10 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_angular_axis * sin_model - hat_angular_axis * hat_angular_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    Matrix3f hat_angular_axis_sq (hat_angular_axis * hat_angular_axis);
+    TMatrix3 delta_R = hat_angular_axis * sin_model -
+      hat_angular_axis_sq * (cos_model - 1) +
+      Matrix3f::Identity ();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel[0]);

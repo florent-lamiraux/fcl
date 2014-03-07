@@ -519,9 +519,9 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 
   center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
 
-  extent.setValue((max_coord[0] - min_coord[0]) / 2,
-                  (max_coord[1] - min_coord[1]) / 2,
-                  (max_coord[2] - min_coord[2]) / 2);
+  extent << (max_coord[0] - min_coord[0]) / 2,
+    (max_coord[1] - min_coord[1]) / 2,
+    (max_coord[2] - min_coord[2]) / 2;
 
 }
 
@@ -588,9 +588,9 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
 
   center = axis[0] * o[0] + axis[1] * o[1] + axis[2] * o[2];
 
-  extent.setValue((max_coord[0] - min_coord[0]) / 2,
-                  (max_coord[1] - min_coord[1]) / 2,
-                  (max_coord[2] - min_coord[2]) / 2);
+  extent << (max_coord[0] - min_coord[0]) / 2,
+    (max_coord[1] - min_coord[1]) / 2,
+    (max_coord[2] - min_coord[2]) / 2;
 
 }
 
@@ -606,11 +606,11 @@ void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec
 {
   Vec3f e1 = a - c;
   Vec3f e2 = b - c;
-  FCL_REAL e1_len2 = e1.sqrLength();
-  FCL_REAL e2_len2 = e2.sqrLength();
+  FCL_REAL e1_len2 = e1.squaredNorm();
+  FCL_REAL e2_len2 = e2.squaredNorm();
   Vec3f e3 = e1.cross(e2);
-  FCL_REAL e3_len2 = e3.sqrLength();
-  radius = e1_len2 * e2_len2 * (e1 - e2).sqrLength() / e3_len2;
+  FCL_REAL e3_len2 = e3.squaredNorm();
+  radius = e1_len2 * e2_len2 * (e1 - e2).squaredNorm() / e3_len2;
   radius = std::sqrt(radius) * 0.5;
 
   center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
@@ -633,7 +633,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
       
-      FCL_REAL d = (p - query).sqrLength();
+      FCL_REAL d = (p - query).squaredNorm();
       if(d > maxD) maxD = d;
     }
 
@@ -644,7 +644,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
         
-        FCL_REAL d = (p - query).sqrLength();
+        FCL_REAL d = (p - query).squaredNorm();
         if(d > maxD) maxD = d;
       }
     }
@@ -664,13 +664,13 @@ static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigne
     int index = indirect_index ? indices[i] : i;
 
     const Vec3f& p = ps[index];
-    FCL_REAL d = (p - query).sqrLength();
+    FCL_REAL d = (p - query).squaredNorm();
     if(d > maxD) maxD = d;
 
     if(ps2)
     {
       const Vec3f& v = ps2[index];
-      FCL_REAL d = (v - query).sqrLength();
+      FCL_REAL d = (v - query).squaredNorm();
       if(d > maxD) maxD = d;
     }
   }

@@ -35,11 +35,11 @@
 /** \author Jia Pan */
 
 
+#include <iostream>
+
 #include "fcl/collision.h"
 #include "fcl/collision_func_matrix.h"
 #include "fcl/narrowphase/narrowphase.h"
-
-#include <iostream>
 
 namespace fcl
 {

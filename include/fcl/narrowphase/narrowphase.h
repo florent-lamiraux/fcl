@@ -395,7 +395,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose()*(tf1.getRotation());
     shape.toshape0 = tf1.inverseTimes(tf2);
   
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -493,7 +493,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose () *(tf1.getRotation());
     shape.toshape0 = tf1.inverseTimes(tf2);
   
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -540,7 +540,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose ()*(tf1.getRotation());
     shape.toshape0 = tf1.inverseTimes(tf2);
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -557,7 +557,7 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       
       if(p1) *p1 = w0;
       if(p2) *p2 = shape.toshape0.transform(w1);
@@ -609,7 +609,7 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
       if(p2) *p2 = shape.toshape0.transform(w1);
       return true;
@@ -642,7 +642,7 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
+    shape.toshape1 = tf2.getRotation().transpose ()*(tf1.getRotation());
     shape.toshape0 = tf1.inverseTimes(tf2);
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
@@ -659,7 +659,7 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
       if(p2) *p2 = shape.toshape0.transform(w1);
       return true;

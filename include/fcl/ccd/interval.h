@@ -73,6 +73,10 @@ struct Interval
     i_[0] = i_[1] = x;
   }
 
+  inline void setZero ()
+  {
+    i_[0] = i_[1] = 0;
+  }
   /// @brief access the interval endpoints: 0 for left, 1 for right end
   inline FCL_REAL operator [] (size_t i) const
   {

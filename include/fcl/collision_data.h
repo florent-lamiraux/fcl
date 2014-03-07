@@ -38,16 +38,14 @@
 #ifndef FCL_COLLISION_DATA_H
 #define FCL_COLLISION_DATA_H
 
-#include "fcl/collision_object.h"
-#include "fcl/learning/classifier.h"
-#include "fcl/knn/nearest_neighbors.h"
-
-
-#include "fcl/math/vec_3f.h"
 #include <vector>
 #include <set>
 #include <limits>
 
+#include "fcl/knn/nearest_neighbors.h"
+#include "fcl/math/vec_3f.h"
+#include "fcl/collision_object.h"
+#include "fcl/learning/classifier.h"
 
 namespace fcl
 {

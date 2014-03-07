@@ -117,6 +117,15 @@ endif()
 include_directories(${CCD_INCLUDE_DIRS})
 link_directories(${CCD_LIBRARY_DIRS})
 
+# Search for eigen
+set(_Eigen_FOUND 0)
+set(Eigen_REQUIRED "eigen3 >= 3.0.0")
+pkg_check_modules(_Eigen REQUIRED ${Eigen_REQUIRED})
+if(NOT ${_Eigen_FOUND})
+  message(FATAL_ERROR "Check that package Eigen is installed in a directory pointed out by PKG_CONFIG_PATH.")
+ENDIF(NOT ${_Eigen_FOUND})
+include_directories(${_Eigen_INCLUDE_DIRS})
+
 add_subdirectory(include/fcl)
 add_subdirectory(src)
 

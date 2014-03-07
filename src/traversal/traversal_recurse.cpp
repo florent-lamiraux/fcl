@@ -116,9 +116,12 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
 
     const OBB& bv1 = node->model1->getBV(c1).bv;
 
-    Matrix3f Rc(R.transposeTimes(bv1.axis[0]), R.transposeTimes(bv1.axis[1]), R.transposeTimes(bv1.axis[2]));
+    Matrix3f Rc;
+    Rc << R.transpose ()*(bv1.axis[0]), R.transpose ()*(bv1.axis[1]),
+      R.transpose ()*(bv1.axis[2]);
     temp = T - bv1.To;
-    Vec3f Tc(temp.dot(bv1.axis[0]), temp.dot(bv1.axis[1]), temp.dot(bv1.axis[2]));
+    Vec3f Tc;
+    Tc << temp.dot(bv1.axis[0]), temp.dot(bv1.axis[1]), temp.dot(bv1.axis[2]);
 
     collisionRecurse(node, c1, b2, Rc, Tc, front_list);
 
@@ -127,9 +130,10 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
 
     const OBB& bv2 = node->model1->getBV(c2).bv;
 
-    Rc = Matrix3f(R.transposeTimes(bv2.axis[0]), R.transposeTimes(bv2.axis[1]), R.transposeTimes(bv2.axis[2]));
+    Rc << R.transpose ()*(bv2.axis[0]), R.transpose ()*(bv2.axis[1]),
+      R.transpose ()*(bv2.axis[2]);
     temp = T - bv2.To;
-    Tc.setValue(temp.dot(bv2.axis[0]), temp.dot(bv2.axis[1]), temp.dot(bv2.axis[2]));
+    Tc << temp.dot(bv2.axis[0]), temp.dot(bv2.axis[1]), temp.dot(bv2.axis[2]);
 
     collisionRecurse(node, c2, b2, Rc, Tc, front_list);
   }

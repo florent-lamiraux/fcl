@@ -136,16 +136,16 @@ public:
   /// @brief Merge the AABB and a point
   inline AABB& operator += (const Vec3f& p)
   {
-    min_.ubound(p);
-    max_.lbound(p);
+    min_ = min_.cwiseMin (p);
+    max_ = max_.cwiseMax (p);
     return *this;
   }
 
   /// @brief Merge the AABB and another AABB
   inline AABB& operator += (const AABB& other)
   {
-    min_.ubound(other.min_);
-    max_.lbound(other.max_);
+    min_ = min_.cwiseMin (other.min_);
+    max_ = max_.cwiseMax (other.max_);
     return *this;
   }
 
@@ -183,13 +183,13 @@ public:
   /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
   inline FCL_REAL size() const
   {
-    return (max_ - min_).sqrLength();
+    return (max_ - min_).squaredNorm ();
   }
 
   /// @brief Radius of the AABB
   inline FCL_REAL radius() const
   {
-    return (max_ - min_).length() / 2;
+    return (max_ - min_).norm () / 2;
   }
 
   /// @brief Center of the AABB
@@ -207,7 +207,7 @@ public:
   /// @brief whether two AABB are equal
   inline bool equal(const AABB& other) const
   {
-    return min_.equal(other.min_) && max_.equal(other.max_);
+    return min_ == other.min_ && max_ == other.max_;
   }
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.

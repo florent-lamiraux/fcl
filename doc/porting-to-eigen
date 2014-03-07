@@ -1,0 +1,22 @@
+fcl::Vec3f has been replaced by Eigen::Matrix <FCL_REAL, 3, 3>. For
+compatibility, the type fcl::Vec3f is still provided. However, the following
+modifications should be done in client code:
+
+  - fcl::Vec3f::length should be replaced by fcl::Vec3f::norm,
+  - fcl::Vec3f::sqrLength should be replaced by fcl::Vec3f::squaredNorm,
+  - fcl::Vec3f::equal should be replaced by fcl::Vec3f::operator==,
+  - fcl::Matrix3f cosntructor with 9 values should replaced by
+    fcl::Matrix3f::operator<<,
+  - fcl::Matrix3f::TransposeDotX should be replaced by
+    fcl::Matrix3f::col (0).dot
+  - fcl::Matrix3f::TransposeDotY should be replaced by
+    fcl::Matrix3f::col (1).dot
+  - fcl::Matrix3f::TransposeDotY should be replaced by
+    fcl::Matrix3f::col (2).dot
+  - fcl::Matrix3f::getColumn should be replaced by fcl::Matrix3f::col,
+  - fcl::Matrix3f::getRow should be replaced by fcl::Matrix3f::row,
+  - fcl::Vec3f::setValue (const FCL_REAL&) should be replaced by
+    fcl::Vec3f::setConstant,
+  - method Matrix3f::setEulerZYX (FCL_REAL, FCL_REAL, FCL_REAL) has been
+    replaced by a function setEulerZYX (FCL_REAL, FCL_REAL, FCL_REAL, Matrix3f&)
+
